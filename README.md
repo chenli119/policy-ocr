@@ -1,145 +1,179 @@
-# Vercel 跨域代理服务
+# CORS 代理服务
 
-一个基于 Vercel 的跨域代理服务，用于解决前端跨域问题。
-
-## 功能特性
-
-- 🚀 **简单易用**：通过 `?url=目标地址` 参数即可转发请求
-- 🌐 **跨域支持**：设置 `Access-Control-Allow-Origin: *` 允许所有域名访问
-- 🔒 **安全校验**：使用 `new URL()` 验证目标地址格式，防止无效请求
-- ⚡ **高性能**：基于 Vercel Edge Functions，全球 CDN 加速
-- 🛡️ **协议限制**：只允许 HTTP 和 HTTPS 协议，提高安全性
-- ⏱️ **超时控制**：10秒请求超时，避免长时间等待
-
-## 部署步骤
-
-### 1. 安装 Vercel CLI
-
-```bash
-npm install -g vercel
-```
-
-### 2. 登录 Vercel
-
-```bash
-vercel login
-```
-
-### 3. 部署项目
-
-```bash
-# 在项目根目录执行
-vercel --prod
-```
-
-### 4. 本地开发
-
-```bash
-# 本地测试
-vercel dev
-```
-
-## 使用方法
-
-部署成功后，你会得到一个 Vercel 域名，例如：`https://your-project.vercel.app`
-
-### API 端点
-
-```
-GET /api/proxy?url=目标地址
-```
-
-### 使用示例
-
-#### 1. 基本用法
-
-```javascript
-// 前端 JavaScript 代码
-const proxyUrl = 'https://your-project.vercel.app/api/proxy';
-const targetUrl = 'https://api.example.com/data';
-
-fetch(`${proxyUrl}?url=${encodeURIComponent(targetUrl)}`)
-  .then(response => response.json())
-  .then(data => console.log(data))
-  .catch(error => console.error('Error:', error));
-```
-
-#### 2. jQuery 示例
-
-```javascript
-$.ajax({
-  url: 'https://your-project.vercel.app/api/proxy',
-  data: {
-    url: 'https://api.example.com/data'
-  },
-  success: function(data) {
-    console.log(data);
-  },
-  error: function(xhr, status, error) {
-    console.error('Error:', error);
-  }
-});
-```
-
-#### 3. Axios 示例
-
-```javascript
-import axios from 'axios';
-
-const proxyUrl = 'https://your-project.vercel.app/api/proxy';
-const targetUrl = 'https://api.example.com/data';
-
-axios.get(proxyUrl, {
-  params: {
-    url: targetUrl
-  }
-})
-.then(response => {
-  console.log(response.data);
-})
-.catch(error => {
-  console.error('Error:', error);
-});
-```
-
-## 错误处理
-
-服务会返回以下错误状态码：
-
-- `400`: 缺少 url 参数或 URL 格式无效
-- `405`: 不支持的请求方法（只支持 GET）
-- `408`: 请求超时
-- `502`: 无法连接到目标服务器
-- `500`: 服务器内部错误
-
-## 安全注意事项
-
-1. **协议限制**：只允许 HTTP 和 HTTPS 协议
-2. **URL 验证**：使用 `new URL()` 验证目标地址格式
-3. **超时控制**：设置 10 秒超时时间
-4. **错误处理**：完善的错误处理机制
+一个简单高效的 CORS 代理服务，基于 Vercel Serverless Functions，用于解决前端跨域问题。
 
 ## 项目结构
 
 ```
-.
 ├── api/
-│   └── proxy.js          # 主要的代理服务文件
-├── package.json          # 项目配置
-├── vercel.json          # Vercel 部署配置
-└── README.md            # 项目说明
+│   └── index.js          # Serverless Function 代理服务
+├── package.json           # 项目配置和依赖
+├── vercel.json           # Vercel 部署配置
+└── README.md             # 项目说明
 ```
 
-## 技术栈
+## 功能特点
 
-- **运行时**：Node.js 18+
-- **部署平台**：Vercel
-- **API 类型**：Serverless Functions
+- 🚀 支持所有 HTTP 方法 (GET, POST, PUT, DELETE, OPTIONS, PATCH)
+- 🔒 自动处理 CORS 头部，解决跨域问题
+- ⚡ 基于 Vercel Serverless Functions，无服务器部署
+- 📦 支持 JSON 和各种数据格式
+- 🛡️ 基本的错误处理和超时控制
+- 🎯 轻量级设计，只保留核心功能
+
+## 使用方法
+
+### 基本用法
+
+```
+https://your-vercel-domain.vercel.app/api?url=目标URL
+```
+
+### 示例
+
+```javascript
+// 原本跨域的请求
+fetch('https://api.example.com/data') // ❌ 跨域错误
+
+// 使用代理服务
+fetch('https://your-proxy.vercel.app/api?url=https://api.example.com/data') // ✅ 成功
+```
+
+### 支持的请求类型
+
+#### GET 请求
+```javascript
+fetch('https://your-proxy.vercel.app/api?url=https://api.example.com/users')
+```
+
+#### POST 请求
+```javascript
+fetch('https://your-proxy.vercel.app/api?url=https://api.example.com/users', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({ name: 'John', email: 'john@example.com' })
+})
+```
+
+#### 其他 HTTP 方法
+```javascript
+// PUT 请求
+fetch('https://your-proxy.vercel.app/api?url=https://api.example.com/users/1', {
+  method: 'PUT',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ name: 'Updated Name' })
+})
+
+// DELETE 请求
+fetch('https://your-proxy.vercel.app/api?url=https://api.example.com/users/1', {
+  method: 'DELETE'
+})
+```
+
+## 部署到 Vercel
+
+### 方法一：通过 GitHub 集成（推荐）
+
+1. 将代码推送到 GitHub 仓库
+2. 在 [Vercel Dashboard](https://vercel.com/dashboard) 中导入项目
+3. 选择你的 GitHub 仓库
+4. 点击部署
+
+### 方法二：通过 Vercel CLI
+
+1. 安装 Vercel CLI
+```bash
+npm i -g vercel
+```
+
+2. 在项目目录中运行
+```bash
+vercel
+```
+
+3. 按照提示完成部署
+
+## 技术实现
+
+### 核心依赖
+- **axios**: HTTP 客户端，用于发送代理请求
+- **Node.js 20.x**: 运行时环境
+
+### 配置说明
+
+#### vercel.json
+```json
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "api/**/*.js",
+      "use": "@vercel/node"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "*"
+        }
+      ]
+    }
+  ]
+}
+```
+
+#### package.json
+```json
+{
+  "engines": {
+    "node": "20.x"
+  },
+  "dependencies": {
+    "axios": "^1.6.0"
+  }
+}
+```
+
+## 错误处理
+
+服务会返回以下错误信息：
+
+- `400`: 缺少 url 参数
+  ```json
+  {
+    "error": "URL parameter is required",
+    "usage": "Add ?url=<target_url> to your request"
+  }
+  ```
+
+- `500`: 代理请求失败
+  ```json
+  {
+    "error": "代理请求失败",
+    "message": "具体错误信息",
+    "timestamp": "2025-01-15T07:31:45.000Z"
+  }
+  ```
+
+## 安全注意事项
+
+⚠️ **重要提醒**：此代理服务允许访问任何 URL，在生产环境中使用时请考虑：
+
+1. **域名白名单**：限制可访问的目标域名
+2. **请求频率限制**：防止滥用
+3. **身份验证**：添加 API 密钥或其他认证机制
+4. **监控和日志**：记录请求日志用于分析
+5. **超时控制**：当前设置为 10 秒超时
 
 ## 许可证
 
 MIT License
 
-## 贡献
+---
 
-欢迎提交 Issue 和 Pull Request！
+**快速开始**：点击 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/your-username/your-repo) 一键部署到 Vercel！
