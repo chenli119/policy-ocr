@@ -1,13 +1,13 @@
 {
   "version": 2,
-  "functions": {
-    "api/proxy.js": {
-      "maxDuration": 10
-    }
+  "env": {
+    "NODE_ENV": "production"
   },
+  "buildCommand": "npm run build",
+  "installCommand": "npm install",
   "headers": [
     {
-      "source": "/api/(.*)",
+      "source": "/(.*)",
       "headers": [
         {
           "key": "Access-Control-Allow-Origin",
@@ -15,13 +15,36 @@
         },
         {
           "key": "Access-Control-Allow-Methods",
-          "value": "GET, POST, PUT, DELETE, OPTIONS"
+          "value": "GET, POST, PUT, DELETE, OPTIONS, PATCH"
         },
         {
           "key": "Access-Control-Allow-Headers",
-          "value": "Content-Type, Authorization"
+          "value": "Content-Type, Authorization, X-Requested-With, Accept, Cache-Control"
+        },
+        {
+          "key": "Access-Control-Max-Age",
+          "value": "86400"
         }
       ]
+    },
+    {
+      "source": "/api/proxy",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-cache, no-store, must-revalidate"
+        }
+      ]
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "/api/index?path=$1"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/api/index?path=$1"
     }
   ]
 }
