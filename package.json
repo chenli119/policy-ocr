@@ -1,0 +1,22 @@
+{
+  "name": "vercel-cors-proxy",
+  "version": "1.0.0",
+  "description": "Vercel跨域代理服务，用于解决前端跨域问题",
+  "main": "api/proxy.js",
+  "scripts": {
+    "dev": "vercel dev",
+    "build": "vercel build",
+    "deploy": "vercel --prod"
+  },
+  "keywords": [
+    "vercel",
+    "cors",
+    "proxy",
+    "跨域"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
